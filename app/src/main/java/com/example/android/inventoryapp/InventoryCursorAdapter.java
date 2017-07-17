@@ -55,13 +55,13 @@ public class InventoryCursorAdapter extends CursorAdapter {
         saleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(quantityInteger > 0){
+                if (quantityInteger > 0) {
                     int quantity = quantityInteger - 1;
                     ContentValues values = new ContentValues();
                     values.put(InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS, quantity);
                     // Update the database
                     context.getContentResolver().update(Uri, values, null, null);
-                } else{
+                } else {
                     Toast.makeText(context, context.getString(R.string.out_of_stock), Toast.LENGTH_SHORT).show();
                 }
             }

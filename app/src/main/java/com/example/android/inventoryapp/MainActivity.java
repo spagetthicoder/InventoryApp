@@ -19,7 +19,7 @@ import android.widget.ListView;
 
 import com.example.android.inventoryapp.data.InventoryContract;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int INVENTORY_LOADER = 0;
     InventoryCursorAdapter mCursorAdapater;
@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -102,7 +103,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 InventoryContract.InventoryEntry.COLUMN_ITEM_NAME,
                 InventoryContract.InventoryEntry.COLUMN_SUPPLIER,
                 InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS,
-                InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM
+                InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM,
+                InventoryContract.InventoryEntry.COLUMN_IMAGE
         };
 
         // This loader will execute the ContentProvider's query method on a background thread

@@ -6,7 +6,8 @@ import android.provider.BaseColumns;
 
 public final class InventoryContract {
 
-    public InventoryContract(){}
+    public InventoryContract() {
+    }
 
     /**
      * The "Content authority" is a name for the entire content provider, similar to the
@@ -39,8 +40,11 @@ public final class InventoryContract {
         public final static String COLUMN_SUPPLIER = "supplier";
         public final static String COLUMN_NUMBER_OF_ITEMS = "numberOfItems";
         public final static String COLUMN_PRICE_PER_ITEM = "pricePerItem";
+        public final static String COLUMN_IMAGE = "imageUri";
 
-        /** The content URI to access the inventory data in the provider */
+        /**
+         * The content URI to access the inventory data in the provider
+         */
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_INVENTORY);
 
         /**

@@ -1,34 +1,42 @@
 package com.example.android.inventoryapp;
 
+import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.android.inventoryapp.data.InventoryContract;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
+import com.example.android.inventoryapp.data.InventoryContract;
 
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int EXISTING_ITEM_LOADER = 0;
+    private static final int REQUEST_CODE = 1;
     private Uri mCurrentInventoryUri;
 
     private EditText mItemNameEditText;
@@ -36,14 +44,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mNumberOfItemsEditText;
     private EditText mPricePerItemEditText;
 
+    private Bitmap bitmap;
+
     String itemName;
     String supplier;
     Integer numberOfItems = 0;
     Integer pricePerItem;
+    String image;
 
-
-    /** Boolean flag that keeps track of whether the item has been edited (true) or not (false) */
+    /**
+     * Boolean flag that keeps track of whether the item has been edited (true) or not (false)
+     */
     private boolean mItemHasChanged = false;
+    private ImageView mImageView;
+    private Uri mCurrentImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +65,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         setContentView(R.layout.activity_editor);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Get a support ActionBar corresponding to this toolbar
+        ActionBar ab = getSupportActionBar();
+        // Enable the Up button
+        ab.setDisplayHomeAsUpEnabled(true);
 
         // Examine the intent that was used to launch this activity,
         // in order to figure out if we're creating a new or editing an existing one
@@ -77,6 +96,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mNumberOfItemsEditText = (EditText) findViewById(R.id.edit_number_of_items);
         mPricePerItemEditText = (EditText) findViewById(R.id.edit_price);
         mSupplierEditText = (EditText) findViewById(R.id.supllier_name);
+        mImageView = (ImageView) findViewById(R.id.image_view);
 
         mItemNameEditText.setOnTouchListener(mTouchListener);
         mNumberOfItemsEditText.setOnTouchListener(mTouchListener);
@@ -90,11 +110,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         minButton.setOnTouchListener(mTouchListener);
         Button plusButton = (Button) findViewById(R.id.plus_button);
         plusButton.setOnTouchListener(mTouchListener);
+        final Button uploadImage = (Button) findViewById(R.id.upload_image);
+        uploadImage.setOnTouchListener(mTouchListener);
 
         saveItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               saveItem();
+                saveItem();
             }
         });
 
@@ -111,55 +133,62 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 orderItem();
             }
         });
-        
+
         minButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 minButton();
             }
         });
-        
+
         plusButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 plusButton();
             }
         });
-        
+
+        uploadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uploadImage();
+            }
+        });
     }
 
 
     @Override
     public void onBackPressed() {
-                // If the item hasn't changed, continue with navigating up to parent activity
-                // which is the {@link MainActivity}.
-                if (!mItemHasChanged) {
-                    NavUtils.navigateUpFromSameTask(EditorActivity.this);
-                }
+        // If the item hasn't changed, continue with navigating up to parent activity
+        // which is the {@link MainActivity}.
+        if (!mItemHasChanged) {
+            NavUtils.navigateUpFromSameTask(EditorActivity.this);
+        }
 
-                // Otherwise if there are unsaved changes, setup a dialog to warn the user.
-                // Create a click listener to handle the user confirming that
-                // changes should be discarded.
-                DialogInterface.OnClickListener discardButtonClickListener =
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // User clicked "Discard" button, navigate to parent activity.
-                                NavUtils.navigateUpFromSameTask(EditorActivity.this);
-                            }
-                        };
+        // Otherwise if there are unsaved changes, setup a dialog to warn the user.
+        // Create a click listener to handle the user confirming that
+        // changes should be discarded.
+        DialogInterface.OnClickListener discardButtonClickListener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // User clicked "Discard" button, navigate to parent activity.
+                        NavUtils.navigateUpFromSameTask(EditorActivity.this);
+                    }
+                };
 
-                // Show a dialog that notifies the user they have unsaved changes
-                showUnsavedChangesDialog(discardButtonClickListener);
+        // Show a dialog that notifies the user they have unsaved changes
+        showUnsavedChangesDialog(discardButtonClickListener);
     }
 
-    private void saveItem(){
+    private void saveItem() {
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
         String itemNameString = mItemNameEditText.getText().toString().trim();
         String supplierString = mSupplierEditText.getText().toString().trim();
         String numberOfItemsString = mNumberOfItemsEditText.getText().toString();
         String pricePerItemString = mPricePerItemEditText.getText().toString().trim();
+        String imageString = "";
 
         // Check if this is supposed to be a new item
         // and check if all the fields in the editor are blank
@@ -185,12 +214,17 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS, numberOfItems);
 
         int pricePerItem = 0;
-        if (!TextUtils.isEmpty(pricePerItemString)){
+        if (!TextUtils.isEmpty(pricePerItemString)) {
             pricePerItem = Integer.parseInt(pricePerItemString);
         }
 
         values.put(InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM, pricePerItem);
 
+        if (mCurrentImageUri != null) {
+            imageString = mCurrentImageUri.toString();
+        }
+
+        values.put(InventoryContract.InventoryEntry.COLUMN_IMAGE, imageString);
 
         // Determine if this is a new or existing item by checking if mCurrentInventoryUri is null or not
         if (mCurrentInventoryUri == null) {
@@ -233,7 +267,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private void showDeleteConfirmationDialog() {
         // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the positve and negative buttons on the dialog.
+        // for the positive and negative buttons on the dialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.delete_dialog_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
@@ -286,7 +320,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private void orderItem() {
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto",supplier , null));
+                "mailto", supplier, null));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Order for " + itemName);
         emailIntent.putExtra(Intent.EXTRA_TEXT, "We would like to order more from item: " + itemName);
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
@@ -294,16 +328,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
 
     private void minButton() {
-        if(numberOfItems>0) {
+        if (numberOfItems > 0) {
             numberOfItems -= 1;
             mNumberOfItemsEditText.setText(String.valueOf(numberOfItems));
-        } else{
+        } else {
             Toast.makeText(getBaseContext(), getString(R.string.cannot_decrease),
                     Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void plusButton(){
+    private void plusButton() {
         numberOfItems += 1;
         mNumberOfItemsEditText.setText(String.valueOf(numberOfItems));
     }
@@ -313,12 +347,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Since the editor shows all item attributes, define a projection that contains
         // all columns from the item table
         String[] projection = {
-               InventoryContract.InventoryEntry._ID,
+                InventoryContract.InventoryEntry._ID,
                 InventoryContract.InventoryEntry.COLUMN_ITEM_NAME,
                 InventoryContract.InventoryEntry.COLUMN_SUPPLIER,
                 InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS,
-                InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM
-               };
+                InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM,
+                InventoryContract.InventoryEntry.COLUMN_IMAGE
+        };
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,   // Parent activity context
@@ -344,18 +379,21 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             int supplierColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_SUPPLIER);
             int numberOfItemsColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS);
             int pricePerItemColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM);
+            int imageColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_IMAGE);
 
             // Extract out the value from the Cursor for the given column index
             itemName = cursor.getString(itemNameColumnIndex);
             supplier = cursor.getString(supplierColumnIndex);
             numberOfItems = cursor.getInt(numberOfItemsColumnIndex);
             pricePerItem = cursor.getInt(pricePerItemColumnIndex);
+            image = cursor.getString(imageColumnIndex);
 
             // Update the views on the screen with the values from the database
             mItemNameEditText.setText(itemName);
             mSupplierEditText.setText(supplier);
             mNumberOfItemsEditText.setText(Integer.toString(numberOfItems));
             mPricePerItemEditText.setText(Integer.toString(pricePerItem));
+            mImageView.setImageURI(Uri.parse(image));
         }
     }
 
@@ -407,6 +445,23 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Create and show the AlertDialog
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    public void uploadImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            mCurrentImageUri = data.getData();
+            mImageView.setImageURI(mCurrentImageUri);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
 }

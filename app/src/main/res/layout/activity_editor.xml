@@ -15,6 +15,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:screenOrientation="portrait"
 
     tools:context=".EditorActivity">
 
@@ -127,7 +128,8 @@
         android:id="@+id/container_measurement"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingBottom="10dp">
 
         <!-- Label -->
         <TextView
@@ -154,30 +156,49 @@
                 android:inputType="number" />
         </RelativeLayout>
     </LinearLayout>
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center">
-    <Button
-        android:id="@+id/save_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+
+    <ImageView
+        android:id="@+id/image_view"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_gravity="center"
-        android:text="@string/save" />
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:src="@drawable/placeholder" />
 
     <Button
-        android:id="@+id/order_button"
+        android:id="@+id/upload_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/order" />
+        android:text="Upload Image..." />
 
-    <Button
-        android:id="@+id/delete_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/delete"
-        android:textColor="@color/colorAccent" />
-</LinearLayout>
+        android:gravity="center"
+        android:paddingTop="10dp">
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/save" />
+
+        <Button
+            android:id="@+id/order_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/order" />
+
+        <Button
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/delete"
+            android:textColor="@color/colorAccent" />
+    </LinearLayout>
 </LinearLayout>

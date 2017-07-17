@@ -166,8 +166,6 @@ public class InventoryProvider extends ContentProvider {
         // Get writeable database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
-        // TODO: Finish sanity checking the rest of the attributes in ContentValues
-
         // Insert the new item with the given values
         long id = database.insert(InventoryContract.InventoryEntry.TABLE_NAME, null, values);
         // If the ID is -1, then the insertion failed. Log an error and return null.
