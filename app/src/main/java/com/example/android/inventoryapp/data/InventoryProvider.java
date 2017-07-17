@@ -124,19 +124,19 @@ public class InventoryProvider extends ContentProvider {
     }
 
 
-        /**
-         * Insert new data into the provider with the given ContentValues.
-         */
-        @Override
-        public Uri insert (Uri uri, ContentValues contentValues){
-            final int match = sUriMatcher.match(uri);
-            switch (match) {
-                case INVENTORIES:
-                    return insertInventory(uri, contentValues);
-                default:
-                    throw new IllegalArgumentException("Insertion is not supported for " + uri);
-            }
+    /**
+     * Insert new data into the provider with the given ContentValues.
+     */
+    @Override
+    public Uri insert(Uri uri, ContentValues contentValues) {
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case INVENTORIES:
+                return insertInventory(uri, contentValues);
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
         }
+    }
 
     private Uri insertInventory(Uri uri, ContentValues values) {
         // Check that the name is not null
@@ -147,7 +147,7 @@ public class InventoryProvider extends ContentProvider {
 
         //Check that the Supplier is not null
         String supllier = values.getAsString(InventoryContract.InventoryEntry.COLUMN_SUPPLIER);
-        if(supllier == null || supllier.equals("") || supllier.equals(" ")){
+        if (supllier == null || supllier.equals("") || supllier.equals(" ")) {
             throw new IllegalArgumentException("Supllier requires an e-mail address.");
         }
 
@@ -246,7 +246,7 @@ public class InventoryProvider extends ContentProvider {
         }
     }
 
-    private int updateItem(Uri uri, ContentValues values, String selection, String[] selectionArgs){
+    private int updateItem(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         // If the {@link InventoryEntry#COLUMN_ITEM_NAME} key is present,
         // check that the name value is not null.
         if (values.containsKey(InventoryContract.InventoryEntry.COLUMN_ITEM_NAME)) {
@@ -261,15 +261,17 @@ public class InventoryProvider extends ContentProvider {
         // check that the gender value is valid.
         if (values.containsKey(InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS)) {
             Integer numberOfItems = values.getAsInteger(InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS);
-            if (numberOfItems == null && numberOfItems<0) {
+            if (numberOfItems == null && numberOfItems < 0) {
                 throw new IllegalArgumentException("Item requires valid number of items");
             }
         }
 
-        //Check that the Supplier is not null
-        String supllier = values.getAsString(InventoryContract.InventoryEntry.COLUMN_SUPPLIER);
-        if(supllier == null || supllier.equals("") || supllier.equals(" ")){
-            throw new IllegalArgumentException("Supplier requires an e-mail address.");
+        if (values.containsKey(InventoryContract.InventoryEntry.COLUMN_SUPPLIER)) {
+            //Check that the Supplier is not null
+            String supplier = values.getAsString(InventoryContract.InventoryEntry.COLUMN_SUPPLIER);
+            if (supplier == null || supplier.equals("") || supplier.equals(" ")) {
+                throw new IllegalArgumentException("Supplier requires an e-mail address.");
+            }
         }
 
         // If the {@link InventoryEntry#pricePerItem} key is present,

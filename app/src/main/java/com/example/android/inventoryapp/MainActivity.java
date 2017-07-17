@@ -100,7 +100,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         String[] projection = {
                 InventoryContract.InventoryEntry._ID,
                 InventoryContract.InventoryEntry.COLUMN_ITEM_NAME,
-                InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS
+                InventoryContract.InventoryEntry.COLUMN_SUPPLIER,
+                InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS,
+                InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM
         };
 
         // This loader will execute the ContentProvider's query method on a background thread
