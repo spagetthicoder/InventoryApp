@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -101,8 +100,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         String[] projection = {
                 InventoryContract.InventoryEntry._ID,
                 InventoryContract.InventoryEntry.COLUMN_ITEM_NAME,
-                InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS,
-                InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM
+                InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS
         };
 
         // This loader will execute the ContentProvider's query method on a background thread

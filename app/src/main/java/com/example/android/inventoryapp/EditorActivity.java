@@ -32,10 +32,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private Uri mCurrentInventoryUri;
 
     private EditText mItemNameEditText;
+    private EditText mSupplierEditText;
     private EditText mNumberOfItemsEditText;
     private EditText mPricePerItemEditText;
 
     String itemName;
+    String supplier;
     Integer numberOfItems = 0;
     Integer pricePerItem;
 
@@ -74,10 +76,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mItemNameEditText = (EditText) findViewById(R.id.edit_item_name);
         mNumberOfItemsEditText = (EditText) findViewById(R.id.edit_number_of_items);
         mPricePerItemEditText = (EditText) findViewById(R.id.edit_price);
+        mSupplierEditText = (EditText) findViewById(R.id.supllier_name);
 
         mItemNameEditText.setOnTouchListener(mTouchListener);
         mNumberOfItemsEditText.setOnTouchListener(mTouchListener);
         mPricePerItemEditText.setOnTouchListener(mTouchListener);
+        mSupplierEditText.setOnTouchListener(mTouchListener);
 
         Button saveItem = (Button) findViewById(R.id.save_button);
         Button deleteButton = (Button) findViewById(R.id.delete_button);
@@ -93,7 +97,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                saveItem();
             }
         });
-
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,15 +157,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Read from input fields
         // Use trim to eliminate leading or trailing white space
         String itemNameString = mItemNameEditText.getText().toString().trim();
+        String supplierString = mSupplierEditText.getText().toString().trim();
         String numberOfItemsString = mNumberOfItemsEditText.getText().toString();
         String pricePerItemString = mPricePerItemEditText.getText().toString().trim();
-
 
         // Check if this is supposed to be a new item
         // and check if all the fields in the editor are blank
         if (mCurrentInventoryUri == null &&
                 TextUtils.isEmpty(itemNameString) && TextUtils.isEmpty(numberOfItemsString) &&
-                TextUtils.isEmpty(pricePerItemString)) {
+                TextUtils.isEmpty(pricePerItemString) && TextUtils.isEmpty(supplier)) {
             // Since no fields were modified, we can return early without creating a new item.
             // No need to create ContentValues and no need to do any ContentProvider operations.
             return;
@@ -170,8 +173,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         ContentValues values = new ContentValues();
         values.put(InventoryContract.InventoryEntry.COLUMN_ITEM_NAME, itemNameString);
+        values.put(InventoryContract.InventoryEntry.COLUMN_SUPPLIER, supplierString);
 
-        // If the weight is not provided by the user, don't try to parse the string into an
+        // If the number of items is not provided by the user, don't try to parse the string into an
         // integer value. Use 0 by default.
         int numberOfItems = 0;
         if (!TextUtils.isEmpty(numberOfItemsString)) {
@@ -282,7 +286,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
     private void orderItem() {
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto","supplier@google.com", null));
+                "mailto",supplier , null));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Order for " + itemName);
         emailIntent.putExtra(Intent.EXTRA_TEXT, "We would like to order more from item: " + itemName);
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
@@ -311,6 +315,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         String[] projection = {
                InventoryContract.InventoryEntry._ID,
                 InventoryContract.InventoryEntry.COLUMN_ITEM_NAME,
+                InventoryContract.InventoryEntry.COLUMN_SUPPLIER,
                 InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS,
                 InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM
                };
@@ -336,16 +341,19 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (cursor.moveToFirst()) {
             // Find the columns of item attributes that we're interested in
             int itemNameColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_ITEM_NAME);
+            int supplierColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_SUPPLIER);
             int numberOfItemsColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS);
             int pricePerItemColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM);
 
             // Extract out the value from the Cursor for the given column index
             itemName = cursor.getString(itemNameColumnIndex);
+            supplier = cursor.getString(supplierColumnIndex);
             numberOfItems = cursor.getInt(numberOfItemsColumnIndex);
             pricePerItem = cursor.getInt(pricePerItemColumnIndex);
 
             // Update the views on the screen with the values from the database
             mItemNameEditText.setText(itemName);
+            mSupplierEditText.setText(supplier);
             mNumberOfItemsEditText.setText(Integer.toString(numberOfItems));
             mPricePerItemEditText.setText(Integer.toString(pricePerItem));
         }
@@ -354,6 +362,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mItemNameEditText.setText("");
+        mSupplierEditText.setText("");
         mNumberOfItemsEditText.setText("");
         mPricePerItemEditText.setText("");
     }

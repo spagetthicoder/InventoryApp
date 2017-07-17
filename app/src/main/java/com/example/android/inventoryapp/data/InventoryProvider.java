@@ -7,8 +7,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import static com.example.android.inventoryapp.data.InventoryContract.CONTENT_AUTHORITY;
@@ -147,6 +145,12 @@ public class InventoryProvider extends ContentProvider {
             throw new IllegalArgumentException("Item requires a name");
         }
 
+        //Check that the Supplier is not null
+        String supllier = values.getAsString(InventoryContract.InventoryEntry.COLUMN_SUPPLIER);
+        if(supllier == null || supllier.equals("") || supllier.equals(" ")){
+            throw new IllegalArgumentException("Supllier requires an e-mail address.");
+        }
+
         // Check that the number of items is valid
         Integer numberOfItems = values.getAsInteger(InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS);
         if (numberOfItems == null && numberOfItems < 0) {
@@ -252,6 +256,7 @@ public class InventoryProvider extends ContentProvider {
             }
         }
 
+
         // If the {@link InventoryEntry#COLUMN_NUMBER_OF_ITEMS} key is present,
         // check that the gender value is valid.
         if (values.containsKey(InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS)) {
@@ -259,6 +264,12 @@ public class InventoryProvider extends ContentProvider {
             if (numberOfItems == null && numberOfItems<0) {
                 throw new IllegalArgumentException("Item requires valid number of items");
             }
+        }
+
+        //Check that the Supplier is not null
+        String supllier = values.getAsString(InventoryContract.InventoryEntry.COLUMN_SUPPLIER);
+        if(supllier == null || supllier.equals("") || supllier.equals(" ")){
+            throw new IllegalArgumentException("Supplier requires an e-mail address.");
         }
 
         // If the {@link InventoryEntry#pricePerItem} key is present,

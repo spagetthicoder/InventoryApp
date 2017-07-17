@@ -30,4 +30,7 @@
     <string name="unsaved_changes_dialog_msg">There are some unsaved changes.</string>
     <string name="discard">Discard changes</string>
     <string name="keep_editing">Keep editing</string>
+    <string name="supplier">Supllier</string>
+    <string name="supplier_name">Supplier Name</string>
+    <string name="supplier_email">Supplier E-Mail</string>
 </resources>
