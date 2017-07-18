@@ -1,21 +1,16 @@
 package com.example.android.inventoryapp;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -42,8 +37,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mNumberOfItemsEditText;
     private EditText mPricePerItemEditText;
 
-    private Bitmap bitmap;
-
     String itemName;
     String supplier;
     Integer numberOfItems = 0;
@@ -68,13 +61,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         ActionBar ab = getSupportActionBar();
         // Enable the Up button
         ab.setDisplayHomeAsUpEnabled(true);
-
-        int permissions_code = 42;
-        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.MANAGE_DOCUMENTS};
-
-        if (!hasPermissions(this, permissions)) {
-            ActivityCompat.requestPermissions(this, permissions, permissions_code);
-        }
 
         // Examine the intent that was used to launch this activity,
         // in order to figure out if we're creating a new or editing an existing one
@@ -162,18 +148,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     }
 
 
-    public static boolean hasPermissions(Context context, String... permissions) {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-
     @Override
     public void onBackPressed() {
         // If the item hasn't changed, continue with navigating up to parent activity
@@ -211,7 +185,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // and check if all the fields in the editor are blank
         if (mCurrentInventoryUri == null &&
                 TextUtils.isEmpty(itemNameString) && TextUtils.isEmpty(numberOfItemsString) &&
-                TextUtils.isEmpty(pricePerItemString) && TextUtils.isEmpty(supplier)) {
+                TextUtils.isEmpty(pricePerItemString) && TextUtils.isEmpty(supplier) && mCurrentImageUri == null) {
             // Since no fields were modified, we can return early without creating a new item.
             // No need to create ContentValues and no need to do any ContentProvider operations.
             Toast.makeText(this, "No fields are being filled in.", Toast.LENGTH_SHORT).show();
@@ -227,6 +201,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             return;
         } else if (mCurrentInventoryUri == null && TextUtils.isEmpty(pricePerItemString)) {
             Toast.makeText(this, "Enter the price per single item", Toast.LENGTH_SHORT).show();
+            return;
+        } else if (mCurrentInventoryUri == null && mCurrentImageUri == null) {
+            Toast.makeText(this, "Please upload an image for the item", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -478,10 +455,16 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     public void uploadImage() {
-        Intent intent = new Intent();
+        Intent intent;
+
+        if (Build.VERSION.SDK_INT < 19) {
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+        } else {
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+        }
+
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(intent, REQUEST_CODE);
     }
 
