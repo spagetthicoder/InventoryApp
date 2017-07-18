@@ -15,8 +15,7 @@ import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract;
 
-import java.util.Currency;
-import java.util.Locale;
+import static com.example.android.inventoryapp.R.id.parent;
 
 
 public class InventoryCursorAdapter extends CursorAdapter {
@@ -35,6 +34,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
         TextView itemNameTextView = (TextView) view.findViewById(R.id.name);
         TextView quantityTextView = (TextView) view.findViewById(R.id.quantity);
         TextView priceTextView = (TextView) view.findViewById(R.id.price);
+
 
         // Find the columns of item attributes that we're interested in
         int itemNameColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_ITEM_NAME);
