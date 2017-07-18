@@ -1,19 +1,21 @@
 package com.example.android.inventoryapp;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.LoaderManager;
-import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -26,10 +28,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 import com.example.android.inventoryapp.data.InventoryContract;
 
@@ -70,6 +68,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         ActionBar ab = getSupportActionBar();
         // Enable the Up button
         ab.setDisplayHomeAsUpEnabled(true);
+
+        int permissions_code = 42;
+        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.MANAGE_DOCUMENTS};
+
+        if (!hasPermissions(this, permissions)) {
+            ActivityCompat.requestPermissions(this, permissions, permissions_code);
+        }
 
         // Examine the intent that was used to launch this activity,
         // in order to figure out if we're creating a new or editing an existing one
@@ -157,6 +162,18 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     }
 
 
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
     @Override
     public void onBackPressed() {
         // If the item hasn't changed, continue with navigating up to parent activity
@@ -197,6 +214,19 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 TextUtils.isEmpty(pricePerItemString) && TextUtils.isEmpty(supplier)) {
             // Since no fields were modified, we can return early without creating a new item.
             // No need to create ContentValues and no need to do any ContentProvider operations.
+            Toast.makeText(this, "No fields are being filled in.", Toast.LENGTH_SHORT).show();
+            return;
+        } else if (mCurrentInventoryUri == null && TextUtils.isEmpty(itemNameString)) {
+            Toast.makeText(this, "Item name can't be emtpy", Toast.LENGTH_SHORT).show();
+            return;
+        } else if (mCurrentInventoryUri == null && TextUtils.isEmpty(supplierString)) {
+            Toast.makeText(this, "Supplier can't be empty", Toast.LENGTH_SHORT).show();
+            return;
+        } else if (mCurrentInventoryUri == null && TextUtils.isEmpty(numberOfItemsString)) {
+            Toast.makeText(this, "Enter the quantity of the item", Toast.LENGTH_SHORT).show();
+            return;
+        } else if (mCurrentInventoryUri == null && TextUtils.isEmpty(pricePerItemString)) {
+            Toast.makeText(this, "Enter the price per single item", Toast.LENGTH_SHORT).show();
             return;
         }
 
