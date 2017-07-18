@@ -114,7 +114,8 @@
             android:fontFamily="sans-serif-light"
             android:inputType="number"
             android:textAlignment="center"
-            android:textAppearance="?android:textAppearanceMedium" />
+            android:textAppearance="?android:textAppearanceMedium"
+            android:maxLength="8"/>
 
         <Button
             android:id="@+id/plus_button"
@@ -152,7 +153,8 @@
                 android:id="@+id/edit_price"
                 style="@style/EditorFieldStyle"
                 android:hint="@string/hint_item_price"
-                android:inputType="number" />
+                android:inputType="number"
+                android:maxLength="8"/>
         </RelativeLayout>
     </LinearLayout>
 

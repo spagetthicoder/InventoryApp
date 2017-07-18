@@ -10,7 +10,7 @@
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="42dp"
         android:fontFamily="sans-serif-medium"
         android:textAppearance="?android:textAppearanceLarge"
         android:textColor="#2B3D4D"
@@ -33,4 +33,16 @@
         android:layout_alignParentRight="true"
         android:focusable="false"
         android:text="@string/sell" />
+
+    <TextView
+        android:id="@+id/price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:fontFamily="sans-serif"
+        android:paddingBottom="18dp"
+        android:paddingLeft="140dp"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textColor="#AEB6BD"
+        tools:text="$20" />
 </RelativeLayout>

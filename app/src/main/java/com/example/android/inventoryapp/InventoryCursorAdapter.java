@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract;
-import com.example.android.inventoryapp.data.InventoryProvider;
+
+import java.util.Currency;
+import java.util.Locale;
 
 
 public class InventoryCursorAdapter extends CursorAdapter {
@@ -29,22 +30,27 @@ public class InventoryCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, final Context context, Cursor cursor) {
+    public void bindView(final View view, final Context context, Cursor cursor) {
         // Find individual views that we want to modify in the list item layout
         TextView itemNameTextView = (TextView) view.findViewById(R.id.name);
         TextView quantityTextView = (TextView) view.findViewById(R.id.quantity);
+        TextView priceTextView = (TextView) view.findViewById(R.id.price);
 
         // Find the columns of item attributes that we're interested in
         int itemNameColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_ITEM_NAME);
         int quantityColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_NUMBER_OF_ITEMS);
+        int priceColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_PRICE_PER_ITEM);
 
         // Read the item attributes from the Cursor for the current item
         String itemName = cursor.getString(itemNameColumnIndex);
         final String quantity = cursor.getString(quantityColumnIndex);
+        String price = cursor.getString(priceColumnIndex);
+        price = "$" + price;
 
         // Update the TextViews with the attributes for the current item
         itemNameTextView.setText(itemName);
         quantityTextView.setText(quantity);
+        priceTextView.setText(price);
 
         Button saleButton = (Button) view.findViewById(R.id.sell_button);
 
