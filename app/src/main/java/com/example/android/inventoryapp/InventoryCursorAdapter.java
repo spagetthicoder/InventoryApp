@@ -15,9 +15,6 @@ import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract;
 
-import static com.example.android.inventoryapp.R.id.parent;
-
-
 public class InventoryCursorAdapter extends CursorAdapter {
     public InventoryCursorAdapter(Context context, Cursor c) {
         super(context, c, 0);
